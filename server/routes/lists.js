@@ -62,6 +62,27 @@ router.put("/:id/items/:itemId", async (req, res) => {
   }
 });
 
+/// PUT method to edit a task
+router.put("/:id/items/:itemId", async (req, res) => {
+  try {
+    const { listId, itemId } = req.params;
+    const { text } = req.body;
+
+    const list = await List.findById(listId);
+    if (!list) return res.status(404).json({ error: "List not found" });
+
+    const item = list.items.id(itemId);
+    if (!item) return res.status(404).json({ error: "Item not found" });
+
+    item.text = text;
+    await list.save();
+
+    res.json(list);
+  } catch (err) {
+    res.status(505).json({ error: err.message });
+  }
+});
+
 /// DELETE methods -- this will delete an entire lists
 router.delete("/:id", async (req, res) => {
   try {
