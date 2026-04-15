@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
 /// this GET method will be specific via an id
 router.get("/:id", async (req, res) => {
   try {
-    const list = await List.find();
+    const list = await List.findById(req.params.id);
     if (!list) return res.status(404).json({ error: "Lists not found" });
     res.json(list);
   } catch (err) {
@@ -50,36 +50,32 @@ router.post("/:id/items", async (req, res) => {
 /// PUT method to update a task complete
 router.put("/:id/items/:itemId", async (req, res) => {
   try {
-    const list = await List.findById(req.params.id);
-    if (!list) return res.status(404).json({ error: "List not found" });
-    const item = list.items.id(req.params.itemId);
-    if (!item) return res.status(404).json({ error: "Item not found" });
-    item.completed = req.body.completed;
-    await list.save();
-    res.json(list);
-  } catch (err) {
-    res.status(404).json({ error: err.message });
-  }
-});
+    const { id, itemId } = req.params;
+    const { completed, text } = req.body;
 
-/// PUT method to edit a task
-router.put("/:id/items/:itemId", async (req, res) => {
-  try {
-    const { listId, itemId } = req.params;
-    const { text } = req.body;
-
-    const list = await List.findById(listId);
+    const list = await List.findById(id);
     if (!list) return res.status(404).json({ error: "List not found" });
 
     const item = list.items.id(itemId);
     if (!item) return res.status(404).json({ error: "Item not found" });
 
-    item.text = text;
+    console.log("BEFORE:", item.text);
+
+    if (text !== undefined) {
+      item.text = text;
+    }
+
+    if (completed !== undefined) {
+      item.completed = completed;
+    }
+
     await list.save();
+
+    console.log("AFTER:", item.text);
 
     res.json(list);
   } catch (err) {
-    res.status(505).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -99,6 +95,12 @@ router.delete("/:id/items/:itemId", async (req, res) => {
   try {
     const list = await List.findById(req.params.id);
     if (!list) return res.status(404).json({ error: "List not found" });
+
+    const item = await list.findById(req.params.itemId);
+    if (!item) return res.status(404).json({ error: "Item not found" });
+
+    item.deleteOne();
+
     await list.save();
     res.json(list);
   } catch (err) {
