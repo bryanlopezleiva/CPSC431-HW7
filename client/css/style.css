@@ -1,1 +1,104 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 20px;
+  color: #222;
+}
 
+.page-header {
+  max-width: 1000px;
+  margin: 0 auto 20px auto;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.page-header h1 {
+  margin: 0;
+}
+
+.app-layout {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.panel {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+input {
+  padding: 8px;
+  min-width: 260px;
+  flex: 1;
+}
+
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  background-color: #eeeeee;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.list-item,
+.item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.clickable-name {
+  font-weight: bold;
+  cursor: pointer;
+  flex: 1;
+}
+
+.item-text {
+  flex: 1;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.status-label {
+  font-size: 0.9rem;
+  color: #444;
+  min-width: 110px;
+}
+
+footer {
+  text-align: center;
+  padding: 10px;
+  color: rgb(95, 104, 124);
+  font-size: 0.8rem;
+  border-top: 1px solid rgb(220, 225, 235);
+}
