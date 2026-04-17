@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
 const List = require("../models/List");
 
@@ -15,6 +16,10 @@ router.get("/", async (req, res) => {
 // GET one list by id
 router.get("/:id", async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: "Invalid list id" });
+    }
+
     const list = await List.findById(req.params.id);
     if (!list) return res.status(404).json({ error: "List not found" });
     res.json(list);
@@ -26,7 +31,12 @@ router.get("/:id", async (req, res) => {
 // CREATE a new list
 router.post("/", async (req, res) => {
   try {
-    const list = new List({ title: req.body.title });
+    const title = req.body.title?.trim();
+    if (!title) {
+      return res.status(400).json({ error: "Title is required" });
+    }
+
+    const list = new List({ title });
     await list.save();
     res.status(201).json(list);
   } catch (err) {
@@ -37,13 +47,22 @@ router.post("/", async (req, res) => {
 // ADD a new text entry to a list
 router.post("/:id/entries", async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: "Invalid list id" });
+    }
+
+    const text = req.body.text?.trim();
+    if (!text) {
+      return res.status(400).json({ error: "Text is required" });
+    }
+
     const list = await List.findById(req.params.id);
     if (!list) return res.status(404).json({ error: "List not found" });
 
-    list.entries.push({ text: req.body.text });
+    list.entries.push({ text });
     await list.save();
 
-    res.status(200).json(list);
+    res.status(201).json(list);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -55,6 +74,14 @@ router.put("/:id/entries/:entryId", async (req, res) => {
     const { id, entryId } = req.params;
     const { status, text } = req.body;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid list id" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(entryId)) {
+      return res.status(400).json({ error: "Invalid entry id" });
+    }
+
     const list = await List.findById(id);
     if (!list) return res.status(404).json({ error: "List not found" });
 
@@ -62,10 +89,17 @@ router.put("/:id/entries/:entryId", async (req, res) => {
     if (!entry) return res.status(404).json({ error: "Entry not found" });
 
     if (text !== undefined) {
-      entry.text = text;
+      const trimmedText = text.trim();
+      if (!trimmedText) {
+        return res.status(400).json({ error: "Text cannot be empty" });
+      }
+      entry.text = trimmedText;
     }
 
     if (status !== undefined) {
+      if (typeof status !== "boolean") {
+        return res.status(400).json({ error: "Status must be true or false" });
+      }
       entry.status = status;
     }
 
@@ -79,6 +113,10 @@ router.put("/:id/entries/:entryId", async (req, res) => {
 // DELETE an entire list
 router.delete("/:id", async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: "Invalid list id" });
+    }
+
     const list = await List.findByIdAndDelete(req.params.id);
     if (!list) return res.status(404).json({ error: "List not found" });
 
@@ -91,6 +129,14 @@ router.delete("/:id", async (req, res) => {
 // DELETE one entry from a list
 router.delete("/:id/entries/:entryId", async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: "Invalid list id" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.entryId)) {
+      return res.status(400).json({ error: "Invalid entry id" });
+    }
+
     const list = await List.findById(req.params.id);
     if (!list) return res.status(404).json({ error: "List not found" });
 

@@ -1,0 +1,5 @@
+1. I was responsible for the server-side of the project, including the database connection, RESTful API routes, and making sure the web application could create, update, and delete lists and tasks correctly. My teammate and I decided to split the work, focusing on one part of the project while checking in with each other on Discord. 
+
+2. To build the application, I used Node.js and Express for the server logic and MongoDB for data storage. I containerized the entire development environment using Docker and Docker Compose, enabling me to run the server and database. With this setup, I tested the endpoints in Postman before connecting them to the frontend. 
+
+3. One challenge I faced was making sure the routes and database model matched each other correctly. Took me a while to figure out how to structure the project, but once I overcame this issue, managing it became easy. Not much of the backend side was too difficult; I put some thought into it since I am concurrently taking a backend engineering course that covers creating a schema, RESTful API routes, and testing endpoints with Postman. 
