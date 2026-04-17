@@ -23,10 +23,10 @@ async function loadLists() {
       const li = document.createElement("li");
       li.className = "list-item";
 
-      const nameSpan = document.createElement("span");
-      nameSpan.textContent = list.name;
-      nameSpan.className = "clickable-name";
-      nameSpan.addEventListener("click", () => loadItems(list._id, list.name));
+      const titleSpan = document.createElement("span");
+      titleSpan.textContent = list.title;
+      titleSpan.className = "clickable-name";
+      titleSpan.addEventListener("click", () => loadItems(list._id, list.title));
 
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Delete";
@@ -35,7 +35,7 @@ async function loadLists() {
         await deleteList(list._id);
       });
 
-      li.appendChild(nameSpan);
+      li.appendChild(titleSpan);
       li.appendChild(deleteBtn);
       listsEl.appendChild(li);
     });
@@ -45,10 +45,10 @@ async function loadLists() {
 }
 
 async function createList() {
-  const name = newListNameEl.value.trim();
+  const title = newListNameEl.value.trim();
 
-  if (!name) {
-    alert("Please enter a list name.");
+  if (!title) {
+    alert("Please enter a list title.");
     return;
   }
 
@@ -58,7 +58,7 @@ async function createList() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ name })
+      body: JSON.stringify({ title })
     });
 
     newListNameEl.value = "";
@@ -68,52 +68,54 @@ async function createList() {
   }
 }
 
-async function loadItems(listId, fallbackName = "Selected List") {
+async function loadItems(listId, fallbackTitle = "Selected List") {
   currentListId = listId;
 
   try {
     const response = await fetch(`${API_BASE}/${listId}`);
     const data = await response.json();
 
-    // If backend GET /:id is still broken, this helps avoid crashing.
     const list = Array.isArray(data)
       ? data.find((item) => item._id === listId)
       : data;
 
     if (!list) {
-      currentListNameEl.textContent = fallbackName;
+      currentListNameEl.textContent = fallbackTitle;
       itemsEl.innerHTML = "<li>Could not load this list.</li>";
       return;
     }
 
-    currentListNameEl.textContent = list.name;
+    currentListNameEl.textContent = list.title;
     itemsEl.innerHTML = "";
 
-    list.items.forEach((item) => {
+    list.entries.forEach((entry) => {
       const li = document.createElement("li");
       li.className = "item-row";
 
       const textSpan = document.createElement("span");
-      textSpan.textContent = item.text;
+      textSpan.textContent = entry.text;
       textSpan.className = "item-text";
-      if (item.completed) {
+
+      if (entry.status) {
         textSpan.classList.add("completed");
       }
 
       const toggleBtn = document.createElement("button");
-      toggleBtn.textContent = item.completed ? "Uncheck" : "Check";
-      toggleBtn.addEventListener("click", async () => {
-        await toggleItem(item._id, item.completed);
+      toggleBtn.textContent = entry.status ? "Uncheck" : "Check";
+      toggleBtn.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        await toggleItem(entry._id, entry.status);
       });
 
       const statusSpan = document.createElement("span");
-      statusSpan.textContent = item.completed ? "Completed" : "Not completed";
+      statusSpan.textContent = entry.status ? "Completed" : "Not completed";
       statusSpan.className = "status-label";
 
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Delete";
-      deleteBtn.addEventListener("click", async () => {
-        await deleteItem(item._id);
+      deleteBtn.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        await deleteItem(entry._id);
       });
 
       li.appendChild(textSpan);
@@ -141,7 +143,7 @@ async function addItem() {
   }
 
   try {
-    await fetch(`${API_BASE}/${currentListId}/items`, {
+    await fetch(`${API_BASE}/${currentListId}/entries`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -156,16 +158,16 @@ async function addItem() {
   }
 }
 
-async function toggleItem(itemId, currentCompletedValue) {
+async function toggleItem(entryId, currentStatusValue) {
   if (!currentListId) return;
 
   try {
-    await fetch(`${API_BASE}/${currentListId}/items/${itemId}`, {
+    await fetch(`${API_BASE}/${currentListId}/entries/${entryId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ completed: !currentCompletedValue })
+      body: JSON.stringify({ status: !currentStatusValue })
     });
 
     loadItems(currentListId);
@@ -174,11 +176,11 @@ async function toggleItem(itemId, currentCompletedValue) {
   }
 }
 
-async function deleteItem(itemId) {
+async function deleteItem(entryId) {
   if (!currentListId) return;
 
   try {
-    await fetch(`${API_BASE}/${currentListId}/items/${itemId}`, {
+    await fetch(`${API_BASE}/${currentListId}/entries/${entryId}`, {
       method: "DELETE"
     });
 

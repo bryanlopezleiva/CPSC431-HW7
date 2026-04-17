@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const List = require("../models/List");
 
-/// lets start with the GET methods -- this will fetch all the lists
+// GET all lists
 router.get("/", async (req, res) => {
   try {
     const lists = await List.find();
@@ -12,21 +12,21 @@ router.get("/", async (req, res) => {
   }
 });
 
-/// this GET method will be specific via an id
+// GET one list by id
 router.get("/:id", async (req, res) => {
   try {
     const list = await List.findById(req.params.id);
-    if (!list) return res.status(404).json({ error: "Lists not found" });
+    if (!list) return res.status(404).json({ error: "List not found" });
     res.json(list);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-/// lets shift over to some POST methods
+// CREATE a new list
 router.post("/", async (req, res) => {
   try {
-    const list = new List({ name: req.body.name });
+    const list = new List({ title: req.body.title });
     await list.save();
     res.status(201).json(list);
   } catch (err) {
@@ -34,72 +34,70 @@ router.post("/", async (req, res) => {
   }
 });
 
-/// the next post item will be to the following id or ongoing task
-router.post("/:id/items", async (req, res) => {
+// ADD a new text entry to a list
+router.post("/:id/entries", async (req, res) => {
   try {
     const list = await List.findById(req.params.id);
     if (!list) return res.status(404).json({ error: "List not found" });
-    list.items.push({ text: req.body.text });
+
+    list.entries.push({ text: req.body.text });
     await list.save();
+
     res.status(200).json(list);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-/// PUT method to update a task complete
-router.put("/:id/items/:itemId", async (req, res) => {
+// UPDATE an entry's text and/or status
+router.put("/:id/entries/:entryId", async (req, res) => {
   try {
-    const { id, itemId } = req.params;
-    const { completed, text } = req.body;
+    const { id, entryId } = req.params;
+    const { status, text } = req.body;
 
     const list = await List.findById(id);
     if (!list) return res.status(404).json({ error: "List not found" });
 
-    const item = list.items.id(itemId);
-    if (!item) return res.status(404).json({ error: "Item not found" });
-
-    console.log("BEFORE:", item.text);
+    const entry = list.entries.id(entryId);
+    if (!entry) return res.status(404).json({ error: "Entry not found" });
 
     if (text !== undefined) {
-      item.text = text;
+      entry.text = text;
     }
 
-    if (completed !== undefined) {
-      item.completed = completed;
+    if (status !== undefined) {
+      entry.status = status;
     }
 
     await list.save();
-
-    console.log("AFTER:", item.text);
-
     res.json(list);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-/// DELETE methods -- this will delete an entire lists
+// DELETE an entire list
 router.delete("/:id", async (req, res) => {
   try {
     const list = await List.findByIdAndDelete(req.params.id);
     if (!list) return res.status(404).json({ error: "List not found" });
+
     res.status(204).send();
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-/// here we want to remove an item from a list
-router.delete("/:id/items/:itemId", async (req, res) => {
+// DELETE one entry from a list
+router.delete("/:id/entries/:entryId", async (req, res) => {
   try {
     const list = await List.findById(req.params.id);
     if (!list) return res.status(404).json({ error: "List not found" });
 
-    const item = await list.findById(req.params.itemId);
-    if (!item) return res.status(404).json({ error: "Item not found" });
+    const entry = list.entries.id(req.params.entryId); // Entries are subdocuments of the lists
+    if (!entry) return res.status(404).json({ error: "Entry not found" });
 
-    item.deleteOne();
+    entry.deleteOne();
 
     await list.save();
     res.json(list);

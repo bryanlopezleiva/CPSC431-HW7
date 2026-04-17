@@ -1,0 +1,8 @@
+
+1. My responsibility was the frontend portion of the To-Do list app. I had the fortunate opportunity to work with a person I had in a previous class so that sped up the process. We collaborated using Discord and he organized the HW7 GitHub structure. My focus was to make sure the app was able to create, display, and delete lists and tasks. Additionally, it must be able to have a status toggle to signify its completeness. HTML, CSS, and JS for the frontend (single page thankfully) was my responsibilities.
+
+2. I used Visual Studio Code as my main development environment along with node.js for the web application execution. I also used Chat GPT 5.2 to help make sure the project was not missing any constraints or capabilities. I basically copy and pasted the prompt along with the completed project files to see if I missed anything. I also used Chat GPT 5.2 for error pop ups and debugging (that JS file for the HTML page was annoying). Finally, I utilized React only to get inspiration from a similar past project that could be applied to this HW.
+
+3. Definitely my main challenge was to have the functionalities work: the JS file. It was nice and simple to set up the buttons and the basic HTML structure but the JS file had so many things going for it. Most of my AI debugging was on that file alone. I had some trivial issues with navigating with the structure of the HW directories (I am used to just top level organization, bad in industry I know) but I quickly adapted and picked up. Overall, it was not tough but smooth development.
+
+- Paul Ungos
